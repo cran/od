@@ -9,6 +9,7 @@ od_to_sf(
   x,
   z,
   zd = NULL,
+  odc = NULL,
   silent = FALSE,
   filter = TRUE,
   package = "sfheaders",
@@ -33,6 +34,8 @@ representing points/zones of origin and destination}
 
 \item{zd}{Zones representing destinations}
 
+\item{odc}{A matrix containing coordinates representing line start and end points}
+
 \item{silent}{Hide messages? \code{FALSE} by default.}
 
 \item{filter}{Remove rows with no matches in \code{z}? \code{TRUE} by default}
@@ -50,4 +53,19 @@ x = od_data_df
 z = od_data_zones
 desire_lines = od_to_sf(x, z)
 desire_lines[1:3]
+plot(desire_lines)
+desire_lines_d = od_to_sf(od_data_df2, od_data_centroids2, od_data_destinations)
+o1 = od_data_centroids2[od_data_centroids2[[1]] == od_data_df2[[1]][1], ]
+d1 = od_data_destinations[od_data_destinations[[1]] == od_data_df2[[2]][1], ]
+plot(desire_lines_d$geometry)
+plot(o1, add = TRUE)
+plot(d1, add = TRUE)
+plot(desire_lines_d$geometry[1], lwd = 3, add = TRUE)
+n = 7
+on = od_data_centroids2[od_data_centroids2[[1]] == od_data_df2[[1]][n], ]
+dn = od_data_destinations[od_data_destinations[[1]] == od_data_df2[[2]][n], ]
+plot(desire_lines_d$geometry)
+plot(on, add = TRUE)
+plot(dn, add = TRUE)
+plot(desire_lines_d$geometry[n], lwd = 3, add = TRUE)
 }

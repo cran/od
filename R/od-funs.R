@@ -9,16 +9,39 @@
 #' @param package Which package to use to create the sf object? `sfheaders` is the default.
 #' @param crs The coordinate reference system of the output, if not known in `z`.
 #' 4326 by default.
+#' @inheritParams odc_to_sf
 #' @export
 #' @examples
 #' x = od_data_df
 #' z = od_data_zones
 #' desire_lines = od_to_sf(x, z)
 #' desire_lines[1:3]
-od_to_sf = function(x, z, zd = NULL, silent = FALSE, filter = TRUE,
+#' plot(desire_lines)
+#' desire_lines_d = od_to_sf(od_data_df2, od_data_centroids2, od_data_destinations)
+#' o1 = od_data_centroids2[od_data_centroids2[[1]] == od_data_df2[[1]][1], ]
+#' d1 = od_data_destinations[od_data_destinations[[1]] == od_data_df2[[2]][1], ]
+#' plot(desire_lines_d$geometry)
+#' plot(o1, add = TRUE)
+#' plot(d1, add = TRUE)
+#' plot(desire_lines_d$geometry[1], lwd = 3, add = TRUE)
+#' n = 7
+#' on = od_data_centroids2[od_data_centroids2[[1]] == od_data_df2[[1]][n], ]
+#' dn = od_data_destinations[od_data_destinations[[1]] == od_data_df2[[2]][n], ]
+#' plot(desire_lines_d$geometry)
+#' plot(on, add = TRUE)
+#' plot(dn, add = TRUE)
+#' plot(desire_lines_d$geometry[n], lwd = 3, add = TRUE)
+od_to_sf = function(x, z, zd = NULL, odc = NULL, silent = FALSE, filter = TRUE,
                     package = "sfheaders", crs = 4326) {
+
+  if(!is.null(odc)) {
+    return(odc_to_sf(odc = odc, crs = crs))
+  }
   if (filter && is.null(zd)) {
     x = od_filter(x, codes = z[[1]], silent = silent)
+  }
+  if(filter && !is.null(zd)) {
+    x = od_filter(x, codes = c(z[[1]], zd[[1]]))
   }
   od_sfc = od_to_sfc(x, z, zd, silent, package, crs, filter)
   sf::st_sf(x, geometry = od_sfc)
@@ -33,16 +56,18 @@ od_to_sfc = function(x,
                      crs = 4326,
                      filter = TRUE) {
   if(package == "sfheaders") {
-    odc = od_coordinates(x, z, silent = silent) # todo: add support for p
+    odc = od_coordinates(x, z, zd, silent = silent) # todo: add support for p
     od_sfc = odc_to_sfc(odc)
-    if(requireNamespace("sf")) {
+    if(requireNamespace("sf", quietly = TRUE)) {
       if(!is.na(sf::st_crs(z))) {
         crs = sf::st_crs(z)
       }
       sf::st_crs(od_sfc) = sf::st_crs(crs)
+    } else {
+      message("sf package not installed (install it to work with CRSs")
     }
   } else {
-    odc = od_coordinates(x, z, silent = silent, sfnames = TRUE) # todo: add support for p
+    odc = od_coordinates(x, z, zd, silent = silent, sfnames = TRUE) # todo: add support for p
     od_sfc = odc_to_sfc_sf(odc, crs = crs)
   }
   od_sfc
@@ -53,6 +78,7 @@ od_to_sfc = function(x,
 #' This function takes a wide range of input data types (spatial lines, points or text strings)
 #' and returns a data frame of coordinates representing origin (ox, oy) and destination (dx, dy) points.
 #' @param p Points representing origins and destinations
+#' @param pd Points representing destinations, if different from origin points
 #' @param sfnames Should output column names be compatible with the sf package?
 #' @return A data frame with origin and destination coordinates
 #' @inheritParams od_to_sfc
@@ -65,7 +91,12 @@ od_to_sfc = function(x,
 #' res
 #' od_coordinates(x, p, sfnames = TRUE)[1:2, ]
 #' od_coordinates(x, p, silent = FALSE)[1:2, ]
-od_coordinates = function(x, p = NULL, silent = TRUE, sfnames = FALSE) {
+#' od_coordinates(x, p)
+#' x = od_data_df2[1:3, ]
+#' p = od_data_centroids2
+#' pd = od_data_destinations
+#' od_coordinates(x, p, pd)
+od_coordinates = function(x, p = NULL, pd = NULL, silent = TRUE, sfnames = FALSE) {
   o_code = x[[1]]
   d_code = x[[2]]
   if(methods::is(o_code, "factor")) {
@@ -98,14 +129,25 @@ od_coordinates = function(x, p = NULL, silent = TRUE, sfnames = FALSE) {
   if(!silent) message(nrow(p) - nrow(p_in_x), " points not in od data removed.")
   p_code = p_code_original[sel_p_in_x]
   stopifnot(all(o_code %in% p_code)) # todo: add error message
-  stopifnot(all(d_code %in% p_code)) # todo: add error message
+  if(is.null(pd)) {
+    stopifnot(all(d_code %in% p_code)) # todo: add error message
+  } else {
+    stopifnot(all(d_code %in% pd[[1]])) # todo: add error message
+  }
   o_matching_p = match(o_code, p_code)
-  d_matching_p = match(d_code, p_code)
-
-  # p_coordinates = sf::st_coordinates(p_in_x)
+  if(is.null(pd)) {
+    d_matching_p = match(d_code, p_code)
+  } else {
+    pcode_d = pd[[1]]
+    d_matching_p = match(d_code, pcode_d)
+    pd_coordinates = sfheaders::sfc_to_df(pd$geometry)[c("x", "y")]
+    d_coords = pd_coordinates[d_matching_p, ]
+  }
   p_coordinates = sfheaders::sfc_to_df(p_in_x)[c("x", "y")]
   o_coords = p_coordinates[o_matching_p, ]
-  d_coords = p_coordinates[d_matching_p, ]
+  if(is.null(pd)) {
+    d_coords = p_coordinates[d_matching_p, ]
+  }
   odc = cbind(o_coords, d_coords)
   if(sfnames) return(as.matrix(odc)) # return without updating column names
   colnames(odc) = c("ox", "oy", "dx", "dy")
@@ -175,7 +217,8 @@ od_coordinates_ids = function(odc) {
 #' @export
 #' @examples
 #' x = od_data_df[1:4, ]
-#' od_to_odmatrix(x)
+#' x_matrix = od_to_odmatrix(x)
+#' class(x_matrix)
 #' od_to_odmatrix(x, attrib = "bicycle")
 od_to_odmatrix = function(x, attrib = 3, name_orig = 1, name_dest = 2) {
   out = matrix(
@@ -223,73 +266,6 @@ geometry_contains_polygons = function(z) {
   # grepl(pattern = "POLY", unique(sf::st_geometry_type(z)))
   # without sf:
   grepl(pattern = "POLY", class(z$geometry)[1])
-}
-
-#' Convert OD data into lines with start and end points sampled on a network
-#'
-#' @inheritParams od_to_sf
-#' @param network An sf object representing a transport network
-#' @export
-#' @examples
-#' x = od_data_df
-#' z = od_data_zones_min
-#' network = od_data_network
-#' (lines_to_points_on_network = od_to_sf_network(x, z, network = network))
-#' (lines_to_points = od_to_sf(x, z))
-od_to_sf_network = function(x, z, zd = NULL, silent = TRUE, package = "sf", crs = 4326,
-                    network = NULL) {
-  # browser() # todo: remove and optimise
-  # odc = od_coordinates(x, z, silent = silent) # we want the data in this format
-
-  z_nm = names(z)[1]
-  zones_o = z[z[[1]] %in% x[[1]], ]
-  zones_d = z[z[[1]] %in% x[[2]], ]
-  # suppressWarnings({
-  network_points = sf::st_cast(network, "POINT")
-  network_points_o = network_points[zones_o, ] # subset only points on network in the zones
-  network_points_d = network_points[zones_d, ] # subset only points on network in the zones
-  # })
-
-  net_o = sf::st_join(network_points_o, z[1])
-  net_d = sf::st_join(network_points_d, z[1])
-
-  # unique_origin_ids = unique(x[[1]])
-  # uoid = table(x[[1]])
-  # udid = table(x[[2]])
-  #
-  # s_origin = split(net_o, net_o[[z_nm]])
-  # l_origin = lapply(seq_along(uoid),
-  #        function(i) {
-  #          g = s_origin[[i]]
-  #          g[sample(nrow(g), size = uoid[i]), ]
-  #        })
-  i = 1
-  l_origin = lapply(seq(nrow(x)),
-         function(i) {
-           g = net_o[net_o[[z_nm]] == x[[1]][i], ]
-           g[sample(nrow(g), size = 1), ]
-         })
-  d_origin = do.call(rbind, l_origin)
-  # d_origin$geo_code == x[[1]] TRUE
-  odc_origin = sf::st_coordinates(d_origin)
-
-  l_destination = lapply(seq(nrow(x)),
-                    function(i) {
-                      g = net_d[net_d[[z_nm]] == x[[2]][i], ]
-                      g[sample(nrow(g), size = 1), ]
-                    })
-  d_destination = do.call(rbind, l_destination)
-  odc_destination = sf::st_coordinates(d_destination)
-
-  odc = cbind(
-    ox = odc_origin[, 1],
-    oy = odc_origin[, 2],
-    dx = odc_destination[, 1],
-    dy = odc_destination[, 2]
-  )
-  # od_sfc = odc_to_sfc(odc) # sfheaders way: todo add it
-  od_sfc = odc_to_sfc_sf(odc)
-  sf::st_sf(x, geometry = od_sfc)
 }
 
 #' Filter OD datasets
