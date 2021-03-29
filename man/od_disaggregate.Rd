@@ -2,6 +2,7 @@
 % Please edit documentation in R/aggregate.R
 \name{od_disaggregate}
 \alias{od_disaggregate}
+\alias{od_split}
 \title{Split-up each OD pair into multiple OD pairs based on subpoints/subzones}
 \usage{
 od_disaggregate(
@@ -11,7 +12,19 @@ od_disaggregate(
   subpoints = NULL,
   code_append = "_ag",
   population_column = 3,
-  population_per_od = 5
+  population_per_od = 5,
+  keep_ids = TRUE
+)
+
+od_split(
+  od,
+  z,
+  subzones = NULL,
+  subpoints = NULL,
+  code_append = "_ag",
+  population_column = 3,
+  population_per_od = 5,
+  keep_ids = TRUE
 )
 }
 \arguments{
@@ -28,6 +41,10 @@ od_disaggregate(
 \item{population_column}{The column containing the total population (if it exists)}
 
 \item{population_per_od}{Minimum number to assign per OD pair}
+
+\item{keep_ids}{Should the origin and destination ids be kept?
+\code{TRUE} by default, meaning 2 extra columns are appended, with the
+names \code{o_agg} and \code{d_agg} containing IDs from the original OD data.}
 }
 \description{
 This function is for splitting-up OD pairs.
@@ -35,6 +52,9 @@ It increases the number of rows in an OD dataset, while aiming
 to keep the amount of travel represented in the data the same.
 To take an analogy from another package, it's roughly equivalent
 to \href{https://tidyr.tidyverse.org/reference/pivot_longer.html}{\code{tidyr::pivot_longer()}}.
+}
+\details{
+An alias for the function is \code{od_split()}.
 }
 \examples{
 od = od_data_df[1:2, ]

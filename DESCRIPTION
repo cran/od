@@ -1,6 +1,6 @@
 Package: od
 Title: Manipulate and Map Origin-Destination Data
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person("Robin", "Lovelace", email = "rob00x@gmail.com", role = c("aut", "cre"),
       comment = c(ORCID = "0000-0001-5679-6536")),
@@ -25,13 +25,13 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.4.0)
 Imports: sfheaders, methods
-Suggests: sf, knitr, rmarkdown, tinytest, covr
+Suggests: sf, knitr, rmarkdown, tinytest, covr, lwgeom
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2021-02-09 21:22:02 UTC; robin
+Packaged: 2021-03-29 07:48:28 UTC; robin
 Author: Robin Lovelace [aut, cre] (<https://orcid.org/0000-0001-5679-6536>),
   David Cooley [ctb]
 Maintainer: Robin Lovelace <rob00x@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-02-10 05:50:05 UTC
+Date/Publication: 2021-03-29 08:40:02 UTC
