@@ -1,7 +1,7 @@
-55831fefd08d17ea197ddd7af9317821 *DESCRIPTION
+125d8a0a5cc81468a7641ffb30db110b *DESCRIPTION
 74aca172aa878ea356612c4abf0a2536 *NAMESPACE
-be77193a70772f1b53f3dbcb995fcfb6 *NEWS.md
-91f77ac4fd9fed4cf91c304a768b9d7e *R/aggregate.R
+954d2d2dbf7db3345eefc9091f2a84c7 *NEWS.md
+25d0db0da65aecf92fca7c4a2aba5e8b *R/aggregate.R
 fbf68138426db836ae191b44a7974976 *R/data.R
 c8776d482277caa6b17240e6d4ac56ef *R/network.R
 39482fa0f346de6ed8d6efea7dc781e7 *R/od-funs.R
@@ -25,7 +25,7 @@ c453c8e023a3fe9d5f5f6661ebcb3675 *data/od_data_zones.rda
 76c8c51aa7821b070e051630918b2af3 *data/od_data_zones_small.rda
 f0704dc32a54afe1780c3b0a2611782f *inst/doc/od.R
 de44ddb10a963ba99246d2bac2e3d8c6 *inst/doc/od.Rmd
-29cc11ee13ab6debe6c1a2ecc5a03eb5 *inst/doc/od.html
+3ea05f06f312a1f35aef5e60f39b37b4 *inst/doc/od.html
 a0e44a42bbc7bc6bb9edd6715f5a597c *inst/od-vs-stplanr.Rmd
 91a878e6f2b797275ece6ac02c7212b6 *inst/stplanr-old-od-code/README.md
 5299b7f30c0561b7182126f69f363bdd *inst/stplanr-old-od-code/od-funs.R
