@@ -12,8 +12,9 @@ od_disaggregate(
   subpoints = NULL,
   code_append = "_ag",
   population_column = 3,
-  population_per_od = 5,
-  keep_ids = TRUE
+  population_per_od = 50,
+  keep_ids = TRUE,
+  integer_outputs = FALSE
 )
 
 od_split(
@@ -23,8 +24,9 @@ od_split(
   subpoints = NULL,
   code_append = "_ag",
   population_column = 3,
-  population_per_od = 5,
-  keep_ids = TRUE
+  population_per_od = 50,
+  keep_ids = TRUE,
+  integer_outputs = FALSE
 )
 }
 \arguments{
@@ -34,17 +36,22 @@ od_split(
 
 \item{subzones}{Sub-zones within the zones defining the OD data}
 
-\item{subpoints}{Points within the zones defining the OD data}
+\item{subpoints}{Points within the zones defining the OD data start/end points}
 
 \item{code_append}{The name of the column containing aggregate zone names}
 
 \item{population_column}{The column containing the total population (if it exists)}
 
-\item{population_per_od}{Minimum number to assign per OD pair}
+\item{population_per_od}{Maximum flow in the population_column to assign per OD pair.
+This only comes into effect if there are enough subpoints to choose from.}
 
 \item{keep_ids}{Should the origin and destination ids be kept?
 \code{TRUE} by default, meaning 2 extra columns are appended, with the
 names \code{o_agg} and \code{d_agg} containing IDs from the original OD data.}
+
+\item{integer_outputs}{Should integer outputs be returned? \code{FALSE} by default.
+Note: there is a known issue when integer results are generated. See
+https://github.com/ITSLeeds/od/issues/31 for details.}
 }
 \description{
 This function is for splitting-up OD pairs.
@@ -58,13 +65,25 @@ An alias for the function is \code{od_split()}.
 }
 \examples{
 od = od_data_df[1:2, ]
+od
 zones = od::od_data_zones_min
+od_sf = od_to_sf(od, zones)
+od_disag = od_disaggregate(od, zones)
+od_disag2 = od_disaggregate(od, zones, population_per_od = 200)
+plot(zones$geometry)
+plot(od_sf$geometry, lwd = 9, add = TRUE)
+plot(od_disag$geometry, col = "grey", lwd = 1, add = TRUE)
+plot(od_disag2$geometry, lwd = 1, add = TRUE)
+table(od_disag$o_agg, od_disag$d_agg)
 subzones = od_data_zones_small
 od_disag = od_disaggregate(od, zones, subzones)
-ncol(od_disag) -1 == ncol(od) # same number of columns (except disag data gained geometry)
+ncol(od_disag) -3 == ncol(od) # same number of columns
+# (except disag data gained geometry and new agg ids)
 sum(od_disag[[3]]) == sum(od[[3]])
 sum(od_disag[[4]]) == sum(od[[4]])
-od_sf = od_to_sf(od, zones)
+# integer results
+od_disag_integer = od_disaggregate(od, zones, subzones)
+plot(rowSums(sf::st_drop_geometry(od_disag)[4:10]), od_disag[[3]])
 plot(od_data_zones_small$geometry)
 plot(od_data_zones_min$geometry, lwd = 3, col = NULL, add = TRUE)
 plot(od_sf["all"], add = TRUE)
