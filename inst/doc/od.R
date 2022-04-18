@@ -144,8 +144,9 @@ od_to_sf(od, z)
 od$geo_code2[3] = od_geo_code2_3
 
 ## -----------------------------------------------------------------------------
+od = od_data_df[1:2, c(1, 2, 9, 4)]
 subzones = od_data_zones_small
-od_disaggregated = od_disaggregate(od = od, z = z, subzones = subzones)
+od_disaggregated = od_disaggregate(od, z, subpoints = subzones, max_per_od = 5)
 plot(od_data_zones_min$geometry, lwd = 3)
 plot(od_data_zones_small$geometry, lwd = 1, add = TRUE)
 plot(desire_lines$geometry, lwd = 5, col = "red", add = TRUE)
@@ -153,11 +154,11 @@ plot(od_disaggregated$geometry, lwd = 0.4, col = "blue", add = TRUE)
 # plot(od_disaggregated$geometry[1:5])
 
 ## -----------------------------------------------------------------------------
-sapply(3:10, function(i) sum(od[[i]]))
-sapply(3:10, function(i) sum(od_disaggregated[[i]]))
+sapply(3:4, function(i) sum(od[[i]]))
+sapply(3:4, function(i) sum(od_disaggregated[[i]]))
 
 ## -----------------------------------------------------------------------------
-od_disaggregated2 = od_disaggregate(od = od_data_df[1:2, ], z, od_data_buildings)
+od_disaggregated2 = od_disaggregate(od, z, subpoints = od_data_buildings)
 plot(od_data_buildings$geometry)
 plot(od_disaggregated2$geometry, add = TRUE, lwd = 0.1)
 
@@ -165,7 +166,7 @@ plot(od_disaggregated2$geometry, add = TRUE, lwd = 0.1)
 #  # various attempts highlighting possible issues with od_disaggregate
 #  buildings = od_data_buildings
 #  od_minimal = od_data_df[1:2]
-#  od_disaggregated2 = od_disaggregate(od = od_minimal, z = z, subzones = buildings)
+#  od_disaggregated2 = od_disaggregate(od = od_minimal, z = z, subpoints = buildings)
 #  sub_points = sf::st_sample(x = z, size = rep(50, nrow(z)))
 #  sub_points_sf = sf::st_as_sf(sub_points)
 #  sub_zones_sf = sf::st_as_sf(sf::st_buffer(sub_points, dist = 0.001))
@@ -176,5 +177,5 @@ plot(od_disaggregated2$geometry, add = TRUE, lwd = 0.1)
 #  od_disaggregated2 = od_disaggregate(od, z, sub_zones_sf)
 #  plot(od_disaggregated2$geometry, add = TRUE)
 #  plot(od_disaggregated2[1:50, ])
-#  # od_disaggregated2 = od_disaggregate(od = od, z = z, subzones = buildings) # error
+#  # od_disaggregated2 = od_disaggregate(od = od, z = z, subpoints = buildings) # error
 

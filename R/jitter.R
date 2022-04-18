@@ -8,6 +8,8 @@
 #' @param zd Zones with ids matching the destination codes in input OD data
 #' @param subpoints_o Points within origin zones representing possible destinations
 #' @param subpoints_d Points within destination zones representing possible destinations
+#' @param disag Should the od_disaggregate function be used as a 'back end' where possible?
+#'   FALSE by default. See https://github.com/ITSLeeds/od/issues/39.
 #' @inheritParams od_disaggregate
 #'
 #' @return An `sf` data frame
@@ -21,8 +23,10 @@
 #' dlr = od_jitter(od, z) # desire_lines_random
 #' desire_lines = od_to_sf(od, z)
 #' plot(z$geometry)
-#' plot(dlr, add = TRUE, lwd = 3)
-#' plot(desire_lines, add = TRUE, lwd = 5)
+#' plot(dlr["all"], add = TRUE, lwd = 3)
+#' dlr$all
+#' desire_lines$all
+#' plot(desire_lines["all"], add = TRUE, lwd = 5)
 #'
 #' # Example showing use of subpoints
 #' subpoints_o = sf::st_sample(z, 200)
@@ -46,8 +50,8 @@
 #' z = sf::st_buffer(od_data_centroids2, dist = 1000)
 #' zd = sf::st_buffer(od_data_destinations, dist = 300)
 #' zd = zd[zd[[1]] %in% od[[2]], ]
-#' desire_lines = od_to_sf(od, od_data_centroids2, od_data_destinations)
-#' dlr = od_jitter(od, z, zd)
+#' desire_lines = od_to_sf(od, od_data_centroids2, zd = od_data_destinations)
+#' dlr = od_jitter(od, z, zd = zd)
 #' plot(z$geometry)
 #' plot(od_data_centroids2$geometry, add = TRUE)
 #' plot(od_data_destinations$geometry, add = TRUE)
@@ -62,20 +66,36 @@
 #' # plot(od_sf[od$all > 200, 1])
 #' # plot(dlr3[od$all > 200, 1])
 #' # mapview::mapview(od_sf$geometry[od$all > 200])
-od_jitter = function(od,
-                     z,
-                     zd = NULL,
-                     subpoints_o = NULL,
-                     subpoints_d = NULL) {
+od_jitter = function(
+  od,
+  z,
+  subpoints = NULL,
+  code_append = "_ag",
+  population_column = 3,
+  max_per_od = 100000,
+  keep_ids = TRUE,
+  integer_outputs = FALSE,
+  # od_jitter-specific arguments (and zd)
+  zd = NULL,
+  subpoints_o = NULL,
+  subpoints_d = NULL,
+  disag = FALSE
+  ) {
+
   if (!methods::is(od, "sf")) {
     # the data structure to reproduce for matching OD pairs
     od = od::od_to_sf(od, z = z, zd = zd)
+  }
+  disag = all(is.null(zd), is.null(subpoints_o), is.null(subpoints_d), disag)
+  if(disag) {
+    message("Using od_disaggregate") # todo remove once tested
+    return(od_disaggregate(od, z, subpoints, code_append, population_column,
+                           max_per_od, keep_ids, integer_outputs))
   }
   odc_new = odc_original = od::od_coordinates(od)
   od = sf::st_drop_geometry(od)
   odc_df = data.frame(o = od[[1]], d = od[[2]], odc_original)
   z_geo = sf::st_geometry(z)
-  # browser()
   id_origins = od[[1]]
   points_per_zone = data.frame(table(id_origins))
   names(points_per_zone)[1] = names(z)[1]
