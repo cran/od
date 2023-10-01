@@ -1,4 +1,4 @@
-## ---- eval=FALSE, echo=FALSE--------------------------------------------------
+## ----eval=FALSE, echo=FALSE---------------------------------------------------
 #  remotes::install_github("paleolimbot/rbbt")
 #  # run once to get citations
 #  library(rbbt)
@@ -13,7 +13,7 @@
 #  # extract_bib --bibtex-file ~/robinlovelace/static/bibs/allrefs.bib vignettes/od.Rmd vignettes/od.bib
 #  # pandoc --filter pandoc-citeproc vignettes/od.Rmd -s -o vignettes/od.bib
 
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 )
 options(stringsAsFactors = FALSE)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  install.packages("od")
 #  # remotes::install_github("itsleeds/od") # for the dev version
 
@@ -39,7 +39,7 @@ od_data_example
 od_data_example$trips_per_year = 10
 od_data_example
 
-## ---- eval=FALSE, echo=FALSE--------------------------------------------------
+## ----eval=FALSE, echo=FALSE---------------------------------------------------
 #  # get leeds and london locations
 #  tmaptools::geocode_OSM("Leeds")
 #  tmaptools::geocode_OSM("London")
@@ -56,7 +56,7 @@ p = sf::st_as_sf(
   )
 p
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  plot(p)
 #  mapview::mapview(p)
 
@@ -67,7 +67,7 @@ knitr::include_graphics("https://user-images.githubusercontent.com/1825120/78998
 desire_line_example = od_to_sf(od_data_example, p)
 desire_line_example
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  mapview::mapview(desire_line_example)
 
 ## ----mapview-l, echo=FALSE, eval=TRUE-----------------------------------------
@@ -130,7 +130,7 @@ plot(desire_lines$geometry)
 ## -----------------------------------------------------------------------------
 plot(desire_lines)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(tmap)
 #  tmap_mode("view")
 #  qtm(desire_lines)
@@ -162,7 +162,7 @@ od_disaggregated2 = od_disaggregate(od, z, subpoints = od_data_buildings)
 plot(od_data_buildings$geometry)
 plot(od_disaggregated2$geometry, add = TRUE, lwd = 0.1)
 
-## ---- echo=FALSE, eval=FALSE--------------------------------------------------
+## ----echo=FALSE, eval=FALSE---------------------------------------------------
 #  # various attempts highlighting possible issues with od_disaggregate
 #  buildings = od_data_buildings
 #  od_minimal = od_data_df[1:2]

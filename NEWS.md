@@ -1,3 +1,12 @@
+# od 0.4.2 (2023-09)
+
+* `od_coordinates_ids()` exported
+* Fixes for CRAN checks
+
+# od 0.4.1 (2023-09)
+
+* `od_coordinates_ids()` faster, uses `vctrs::vec_interleave()` (#45)
+
 # od 0.4.0 (2022-04)
 
 * `od_disaggregate()` can now take route networks as inputs
