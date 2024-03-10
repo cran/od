@@ -1,6 +1,6 @@
 Package: od
 Title: Manipulate and Map Origin-Destination Data
-Version: 0.4.3
+Version: 0.4.4
 Authors@R: c(
     person("Robin", "Lovelace", email = "rob00x@gmail.com", role = c("aut", "cre"),
       comment = c(ORCID = "0000-0001-5679-6536")),
@@ -29,9 +29,9 @@ Suggests: sf, knitr, rmarkdown, tinytest, covr, lwgeom
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2023-11-15 06:58:29 UTC; robin
+Packaged: 2024-03-10 14:51:04 UTC; robin
 Author: Robin Lovelace [aut, cre] (<https://orcid.org/0000-0001-5679-6536>),
   David Cooley [ctb]
 Maintainer: Robin Lovelace <rob00x@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-11-15 09:40:07 UTC
+Date/Publication: 2024-03-10 16:50:02 UTC
